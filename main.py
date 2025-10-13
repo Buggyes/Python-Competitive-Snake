@@ -23,7 +23,6 @@ while running:
     pygame.surfarray.blit_array(surf, space)
     surf = pygame.transform.scale(surf, (sWidth, sHeight))
     screen.blit(surf, (0, 0))
-    # flip() the display to put your work on screen
     pygame.display.update()
 
     clock.tick(60)  # limits FPS to 60
