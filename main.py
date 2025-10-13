@@ -3,8 +3,8 @@ import numpy as np
 import game
 import colorDict
 
-sWidth = 800
-sHeight = 500
+sWidth = 600
+sHeight = 600
 
 #Setup
 pygame.init()
@@ -13,13 +13,9 @@ clock = pygame.time.Clock()
 running = True
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    screen.fill('black')
 
     space = game.createSpace(20,20)
     space = colorDict.translateColors(space)
