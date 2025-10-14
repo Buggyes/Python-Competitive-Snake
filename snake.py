@@ -7,21 +7,15 @@ class Direction(Enum):
     right=4
 
 class SnakeNode:
-    posX = 0
-    posY = 0
-    direction = Direction.right
     def __init__(self, posX: int, posY: int, dir: Direction):
         self.posX = posX
         self.posY = posY
         self.direction = dir
 
 class Snake:
-    direction = Direction.right
-    body = []
-    isPlayer = False
-    
     def __init__(self, posX: int, posY: int, isPlayer: bool):
-        self.body.append(SnakeNode(posX,posY, Direction.right))
+        self.direction = Direction.right
+        self.body = [SnakeNode(posX,posY, Direction.right)]
         self.isPlayer = isPlayer
     
     def move(self):
