@@ -19,17 +19,17 @@ class Snake:
         self.isPlayer = isPlayer
     
     def grow(self):
-        tip = self.body.__getitem__(self.body.__len__()-1)
+        tip = self.body[0]
         
         if tip.direction == Direction.up:
-            self.body.append(SnakeNode(tip.posY, tip.posX-1, Direction.up))
+            self.body.append(SnakeNode(tip.posX-1, tip.posY, Direction.up))
         if tip.direction == Direction.down:
-            self.body.append(SnakeNode(tip.posY, tip.posX+1, Direction.down))
+            self.body.append(SnakeNode(tip.posX+1, tip.posY, Direction.down))
         if tip.direction == Direction.left:
-            self.body.append(SnakeNode(tip.posY-1, tip.posX, Direction.left))
+            self.body.append(SnakeNode(tip.posX, tip.posY-1, Direction.left))
         if tip.direction == Direction.right:
-            self.body.append(SnakeNode(tip.posY+1, tip.posX, Direction.right))
-
+            self.body.append(SnakeNode(tip.posX, tip.posY+1, Direction.right))
+        
     def checkOutcome(self, space):
         head = self.body[-1]
         collision = space[head.posY][head.posX]
@@ -40,33 +40,26 @@ class Snake:
         return "free"
 
     def move(self):
+        temp = self.body[0]
+        self.body.pop(0)
+
         if self.direction == Direction.up:
-            temp = self.body[0]
-            self.body.pop(0)
             temp.posX -= 1
             temp.direction = Direction.up
-            self.body.append(temp)
 
         elif self.direction == Direction.down:
-            temp = self.body[0]
-            self.body.pop(0)
             temp.posX += 1
             temp.direction = Direction.down
-            self.body.append(temp)
 
         elif self.direction == Direction.left:
-            temp = self.body[0]
-            self.body.pop(0)
             temp.posY -= 1
             temp.direction = Direction.left
-            self.body.append(temp)
 
         elif self.direction == Direction.right:
-            temp = self.body[0]
-            self.body.pop(0)
             temp.posY += 1
             temp.direction = Direction.right
-            self.body.append(temp)
+
+        self.body.append(temp)
     
     def changeDirection(self, dir: Direction):
         self.direction = dir

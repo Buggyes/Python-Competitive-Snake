@@ -1,11 +1,13 @@
 import pygame
 import numpy as np
+import time
 from snake import Direction
 import game
 import colorDict
 
 sWidth = 600
 sHeight = 600
+ticksPerSec = 8
 
 #Setup
 pygame.init()
@@ -15,6 +17,7 @@ running = True
 playerDir = Direction.right
 
 while running:
+    start = time.time()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -28,7 +31,7 @@ while running:
             if event.key == pygame.K_RIGHT:
                 playerDir = Direction.right
 
-    space = game.createSpace(20,20) # Draws board
+    space = game.createSpace(50,50) # Draws board
     game.moveSnakes(playerDir, space) # Moves all snakes
     space = colorDict.translateColors(space, game.snakes) # Translates the indexes into colors for display
     surf = pygame.Surface((space.shape[0], space.shape[1])) # Translates the array into a surface so pygame can draw it
@@ -37,6 +40,9 @@ while running:
     screen.blit(surf, (0, 0)) # Draws the surface into the screen
     pygame.display.update() # Updates the changes
 
-    clock.tick(8) # limits FPS
+    clock.tick(ticksPerSec) # limits FPS
+    end = time.time()
+    timeLen = start - end
+    game.subtractTimer(timeLen*-1) # subtracts timer and creates apples if it reaches 0
 
 pygame.quit()
