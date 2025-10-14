@@ -1,8 +1,10 @@
 import numpy as np
 import random as rnd
+import snake
 
 gameStarted = False
-board = 0
+board = []
+snakes = []
 
 def placeSnakes(space):
     size = np.shape(space)
@@ -18,10 +20,10 @@ def placeSnakes(space):
                     if not farFromWall:
                         farFromWall = True
                     elif nSnakes > 0 and farFromWall:
-                        roll = rnd.randint(0,400)
-                        if(roll > 350):
-                            if nSnakes == 2: space[i][j] = 2
-                            else: space[i][j] = 3
+                        roll = rnd.randint(0,1000)
+                        if(roll > 950):
+                            if nSnakes == 2: snakes.append(snake.Snake(i, j, True))
+                            else: snakes.append(snake.Snake(i, j, False))
                             nSnakes -= 1
                             break
                     else:
