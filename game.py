@@ -54,6 +54,14 @@ def createSpace(sizeX, sizeY):
 
 def moveSnakes(playerDir, space):
     global snakes
+    deadSnakes = []
     for s in snakes:
         s.acceptInput(playerDir, space)
         s.move()
+        outcome = s.checkOutcome(board)
+        if outcome == "wall":
+            deadSnakes.append(s)
+        if outcome == "apple":
+            s.grow()
+    for s in deadSnakes:
+        snakes.remove(s)
