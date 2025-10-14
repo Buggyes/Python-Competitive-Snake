@@ -22,25 +22,28 @@ class Snake:
         if self.direction == Direction.up:
             temp = self.body[0]
             self.body.pop(0)
-            temp.posY -= 1
+            temp.posX -= 1
             temp.direction = Direction.up
             self.body.append(temp)
+
         elif self.direction == Direction.down:
             temp = self.body[0]
             self.body.pop(0)
-            temp.posY += 1
+            temp.posX += 1
             temp.direction = Direction.down
             self.body.append(temp)
+
         elif self.direction == Direction.left:
             temp = self.body[0]
             self.body.pop(0)
-            temp.posX -= 1
+            temp.posY -= 1
             temp.direction = Direction.left
             self.body.append(temp)
+            
         elif self.direction == Direction.right:
             temp = self.body[0]
             self.body.pop(0)
-            temp.posX += 1
+            temp.posY += 1
             temp.direction = Direction.right
             self.body.append(temp)
     

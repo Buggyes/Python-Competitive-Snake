@@ -51,3 +51,9 @@ def createSpace(sizeX, sizeY):
     board = placeSnakes(board)
     gameStarted = True
     return board
+
+def moveSnakes(playerDir, space):
+    global snakes
+    for s in snakes:
+        s.acceptInput(playerDir, space)
+        s.move()
