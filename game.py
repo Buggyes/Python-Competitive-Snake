@@ -53,7 +53,7 @@ def moveSnakes(playerDir, space):
         if outcome == "wall":
             deadSnakes.append(s)
         if outcome == "apple":
-            board = s.grow()
+            board = s.grow(board)
     for s in deadSnakes:
         snakes.remove(s)
 

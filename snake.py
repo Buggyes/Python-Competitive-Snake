@@ -18,17 +18,21 @@ class Snake:
         self.body = [SnakeNode(posX,posY, Direction.right)]
         self.isPlayer = isPlayer
     
-    def grow(self):
+    def grow(self, space):
         tip = self.body[0]
         
         if tip.direction == Direction.up:
-            self.body.append(SnakeNode(tip.posX-1, tip.posY, Direction.up))
+            self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
         if tip.direction == Direction.down:
-            self.body.append(SnakeNode(tip.posX+1, tip.posY, Direction.down))
+            self.body.insert(0, SnakeNode(tip.posX+1, tip.posY, Direction.down))
         if tip.direction == Direction.left:
-            self.body.append(SnakeNode(tip.posX, tip.posY-1, Direction.left))
+            self.body.insert(0, SnakeNode(tip.posX, tip.posY-1, Direction.left))
         if tip.direction == Direction.right:
-            self.body.append(SnakeNode(tip.posX, tip.posY+1, Direction.right))
+            self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.right))
+        
+        head = self.body[-1]
+        space[head.posY][head.posX] = 0
+        return space
         
     def checkOutcome(self, space):
         head = self.body[-1]
@@ -40,26 +44,20 @@ class Snake:
         return "free"
 
     def move(self):
-        temp = self.body[0]
-        self.body.pop(0)
-
+        prevPositions = [(node.posX, node.posY) for node in self.body]
+        head = self.body[-1]
+        
         if self.direction == Direction.up:
-            temp.posX -= 1
-            temp.direction = Direction.up
-
+            head.posX -= 1
         elif self.direction == Direction.down:
-            temp.posX += 1
-            temp.direction = Direction.down
-
+            head.posX += 1
         elif self.direction == Direction.left:
-            temp.posY -= 1
-            temp.direction = Direction.left
-
+            head.posY -= 1
         elif self.direction == Direction.right:
-            temp.posY += 1
-            temp.direction = Direction.right
+            head.posY += 1
 
-        self.body.append(temp)
+        for i in range(len(self.body)-1):
+            self.body[i].posX, self.body[i].posY = prevPositions[i+1]
     
     def changeDirection(self, dir: Direction):
         self.direction = dir

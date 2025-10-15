@@ -18,7 +18,7 @@ playerDir = Direction.right
 
 while running:
     start = time.time()
-    for event in pygame.event.get():
+    for event in pygame.event.get(): # Checks for player input
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
