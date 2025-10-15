@@ -34,13 +34,17 @@ class Snake:
         space[head.posY][head.posX] = 0
         return space
         
-    def checkOutcome(self, space):
+    def checkOutcome(self, space, snakes):
         head = self.body[-1]
         collision = space[head.posY][head.posX]
         if collision == 1:
             return "wall"
         if collision == 2:
             return "apple"
+        for s in snakes:
+            for i in range(0, s.body.__len__()-1):
+                if head.posX == s.body[i].posX and head.posY == s.body[i].posY:
+                    return "snake"
         return "free"
 
     def move(self):
@@ -60,7 +64,21 @@ class Snake:
             self.body[i].posX, self.body[i].posY = prevPositions[i+1]
     
     def changeDirection(self, dir: Direction):
-        self.direction = dir
+        canChange = False
+
+        if self.body.__len__() > 1:
+            if dir == Direction.up and self.direction != Direction.down:
+                canChange = True
+            elif dir == Direction.down and self.direction != Direction.up:
+                canChange = True
+            elif dir == Direction.left and self.direction != Direction.right:
+                canChange = True
+            elif dir == Direction.right and self.direction != Direction.left:
+                canChange = True
+        else:
+            self.direction = dir
+        if canChange:
+            self.direction = dir
 
     def searchApple(self, space):
         #search goes here
