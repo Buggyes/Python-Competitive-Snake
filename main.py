@@ -1,7 +1,7 @@
 import pygame
 import numpy as np
 import time
-from snake import Direction
+from enums import Direction
 import game
 import colorDict
 

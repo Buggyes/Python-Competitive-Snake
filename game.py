@@ -47,7 +47,7 @@ def moveSnakes(playerDir, space):
     global board
     deadSnakes = []
     for s in snakes:
-        s.acceptInput(playerDir, space)
+        s.acceptInput(playerDir, space, snakes)
         s.move()
         outcome = s.checkOutcome(board, snakes)
         if outcome == "wall" or outcome == "snake":

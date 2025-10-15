@@ -1,10 +1,4 @@
-from enum import Enum
-
-class Direction(Enum):
-    up=1
-    down=2
-    left=3
-    right=4
+from enums import Direction
 
 class SnakeNode:
     def __init__(self, posX: int, posY: int, dir: Direction):
@@ -17,6 +11,8 @@ class Snake:
         self.direction = Direction.right
         self.body = [SnakeNode(posX,posY, Direction.right)]
         self.isPlayer = isPlayer
+        if not isPlayer:
+            self.minimaxScore = 0
     
     def grow(self, space):
         tip = self.body[0]
@@ -66,26 +62,91 @@ class Snake:
     def changeDirection(self, dir: Direction):
         canChange = False
 
-        if self.body.__len__() > 1:
-            if dir == Direction.up and self.direction != Direction.down:
-                canChange = True
-            elif dir == Direction.down and self.direction != Direction.up:
-                canChange = True
-            elif dir == Direction.left and self.direction != Direction.right:
-                canChange = True
-            elif dir == Direction.right and self.direction != Direction.left:
-                canChange = True
-        else:
-            self.direction = dir
+        if dir == Direction.up and self.direction != Direction.down:
+            canChange = True
+        elif dir == Direction.down and self.direction != Direction.up:
+            canChange = True
+        elif dir == Direction.left and self.direction != Direction.right:
+            canChange = True
+        elif dir == Direction.right and self.direction != Direction.left:
+            canChange = True
+
         if canChange:
             self.direction = dir
 
-    def searchApple(self, space):
-        #search goes here
-        a = 1
+    def evaluateBoard(self, botSnake, playerSnake, space):
+        head = botSnake.body[-1]
+        # Find apple position
+        applePositions = [(x, y) for x in range(space.shape[0]) for y in range(space.shape[1]) if space[x][y] == 2]
+        if not applePositions:
+            return 0  # no apples
 
-    def acceptInput(self, dir: Direction, space):
+        appleX, appleY = applePositions[0]
+
+        # manhattan distance from head to apple
+        distToApple = abs(head.posX - appleX) + abs(head.posY - appleY)
+
+        # distance from player snake (penalize if too close)
+        playerHead = playerSnake.body[-1]
+        distToPlayer = abs(head.posX - playerHead.posX) + abs(head.posY - playerHead.posY)
+
+        # score combines distance from apple and safety
+        score = -distToApple + (0.5 * distToPlayer)
+        return score
+
+    def simulateMove(self, snake, direction, space):
+        newSnake = Snake(snake.body[-1].posX, snake.body[-1].posY, snake.isPlayer)
+        newSnake.body = [SnakeNode(n.posX, n.posY, n.direction) for n in snake.body]
+        newSnake.changeDirection(direction)
+        newSnake.move()
+
+        # check collision with wall
+        head = newSnake.body[-1]
+        if space[head.posY][head.posX] == 1:
+            return None  # wall hit
+
+        # check self-collision
+        for node in newSnake.body[:-1]:
+            if node.posX == head.posX and node.posY == head.posY:
+                return None
+
+        return newSnake
+
+    def minimax(self, botSnake, playerSnake, space, depth, maximizing):
+        if depth == 0:
+            return self.evaluateBoard(botSnake, playerSnake, space), None
+
+        bestMove = None
+        if maximizing:
+            maxEval = float('-inf')
+            for direction in Direction:
+                newBot = self.simulateMove(botSnake, direction, space)
+                if not newBot:
+                    continue
+                evalScore, _ = self.minimax(newBot, playerSnake, space, depth - 1, False)
+                if evalScore > maxEval:
+                    maxEval = evalScore
+                    bestMove = direction
+            return maxEval, bestMove
+        else:
+            minEval = float('inf')
+            for direction in Direction:
+                newPlayer = self.simulateMove(playerSnake, direction, space)
+                if not newPlayer:
+                    continue
+                evalScore, _ = self.minimax(botSnake, newPlayer, space, depth - 1, True)
+                if evalScore < minEval:
+                    minEval = evalScore
+            return minEval, None
+
+    def searchApple(self, space, snakes):
+        player = next(s for s in snakes if s.isPlayer)
+        self.minimaxScore, direction = self.minimax(self, player, space, 2, True)
+        if direction:
+            self.changeDirection(direction)
+
+    def acceptInput(self, dir: Direction, space, snakes):
         if self.isPlayer:
             self.changeDirection(dir)
         else:
-            self.searchApple(space)
+            self.searchApple(space, snakes)
