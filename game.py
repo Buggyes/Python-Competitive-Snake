@@ -6,11 +6,11 @@ gameStarted = False
 gameFinished = False
 board = []
 snakes = []
-appleTimer = 1
+appleTimer = 3
 ongoingTimer = appleTimer
 playerScore = 0
 aiScore = 0
-winningScore = 30
+winningScore = 20
 
 def placeSnakes(space):
     size = np.shape(space)

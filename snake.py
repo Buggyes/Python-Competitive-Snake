@@ -111,14 +111,21 @@ class Snake:
                 if space[i][j] == 2:
                     applePositions.append((i, j))
         if not applePositions:
-            return 0  # no apples
+            #if there's no apples, and the snake has a size of at least 2,
+            #it will chase down the player and try to corner it
+            if len(botSnake.body) > 1:
+                playerHead = playerSnake.body[-1]
+                distOfPlayer = abs((head.posX - playerHead.posX)**2 + (head.posY - playerHead.posY)**2)
+                score = -distOfPlayer
+                return score
+            return 0
 
         appleY, appleX = applePositions[-1]
 
+        
         #distance from head to apple
-        distToApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
-
-        score = -distToApple
+        distOfApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
+        score = -distOfApple
         return score
 
     def simulateMove(self, snake, otherSnake, direction, space):
@@ -128,6 +135,11 @@ class Snake:
         newSnake.move()
 
         head = newSnake.body[-1]
+        
+        # returns right away if it finds an apple
+        if space[head.posY][head.posX] == 2:
+            return newSnake
+        
         # check collision with wall
         if space[head.posY][head.posX] == 1:
             return None  # wall hit
