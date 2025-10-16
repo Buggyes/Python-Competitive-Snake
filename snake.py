@@ -14,21 +14,32 @@ class Snake:
         if not isPlayer:
             self.minimaxScore = 0
     
-    def grow(self, space):
+    def grow(self, board):
         tip = self.body[0]
+        if self.body.__len__() == 1:
+            if tip.direction == Direction.up:
+                self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
+            if tip.direction == Direction.down:
+                self.body.insert(0, SnakeNode(tip.posX+1, tip.posY, Direction.down))
+            if tip.direction == Direction.left:
+                self.body.insert(0, SnakeNode(tip.posX, tip.posY-1, Direction.left))
+            if tip.direction == Direction.right:
+                self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.right))
+        else:
+            tail = self.body[1]
         
-        if tip.direction == Direction.up:
-            self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
-        if tip.direction == Direction.down:
-            self.body.insert(0, SnakeNode(tip.posX+1, tip.posY, Direction.down))
-        if tip.direction == Direction.left:
-            self.body.insert(0, SnakeNode(tip.posX, tip.posY-1, Direction.left))
-        if tip.direction == Direction.right:
-            self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.right))
+            if tail.posX < tip.posX:
+                self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
+            if tail.posX > tip.posX:
+                self.body.insert(0, SnakeNode(tip.posX+1, tip.posY, Direction.down))
+            if tail.posY < tip.posY:
+                self.body.insert(0, SnakeNode(tip.posX, tip.posY-1, Direction.left))
+            if tail.posY > tip.posY:
+                self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.right))
         
         head = self.body[-1]
-        space[head.posY][head.posX] = 0
-        return space
+        board[head.posY][head.posX] = 0
+        return board
         
     def checkOutcome(self, space, snakes):
         head = self.body[-1]
