@@ -189,9 +189,9 @@ class Snake:
         for node in otherSnake.body:
             if node.posX == head.posX and node.posY == head.posY:
                 bumpChance = rnd.randint(0, 100)
-                # por motivos de balanceamento, a IA tem 2% de chance
-                # dela se jogar no corpo do jogador quando ela está próxima
-                if bumpChance > 98:
+                # por motivos de balanceamento, a IA tem ≃1% de chance
+                # dela se jogar no corpo do jogador quando ela está próxima a cada iteração do MiniMax
+                if bumpChance > 99:
                     return None
 
         return newSnake
