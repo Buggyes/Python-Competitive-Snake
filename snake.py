@@ -60,15 +60,18 @@ class Snake:
             return "apple"
         for s in snakes:
             if s != self:
-                for i in range(0, len(s.body)):
-                    if head.posX == s.body[i].posX and head.posY == s.body[i].posY:
-                        if len(s.body) > len(self.body):
+                otherHead = s.body[-1]
+                if head.posX == otherHead.posX and head.posY == otherHead.posY:
+                    if len(s.body) > len(self.body):
+                        return "snake"
+                    if len(s.body) == len(self.body):
+                        # ≃2% de chance de perder quando encosta em uma cobra com o tamanho igual
+                        deathChance = rnd.randint(0,100)
+                        if deathChance > 98:
                             return "snake"
-                        elif len(s.body) == len(self.body):
-                            # ≃2% de chance de perder quando encosta em uma cobra com o tamanho igual
-                            deathChance = rnd.randint(0,100)
-                            if deathChance > 98:
-                                return "snake"
+                for i in range(0, len(s.body)-1):
+                    if head.posX == s.body[i].posX and head.posY == s.body[i].posY:
+                        return "snake"
         return "free"
 
     # A cobra se move...
@@ -185,13 +188,13 @@ class Snake:
             if node.posX == head.posX and node.posY == head.posY:
                 return None
 
-        # Fazemos o menos para a cobra adversária
+        # Fazemos o mesmo para a cobra adversária
         for node in otherSnake.body:
             if node.posX == head.posX and node.posY == head.posY:
-                bumpChance = rnd.randint(0, 100)
+                bumpChance = rnd.randint(0, 10000)
                 # por motivos de balanceamento, a IA tem ≃1% de chance
                 # dela se jogar no corpo do jogador quando ela está próxima a cada iteração do MiniMax
-                if bumpChance > 99:
+                if bumpChance > 9999:
                     return None
 
         return newSnake
