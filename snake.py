@@ -102,7 +102,7 @@ class Snake:
 
     def evaluateBoard(self, botSnake, playerSnake, space):
         head = botSnake.body[-1]
-        
+
         # Find apple position
         applePositions = []
         for i in range(0,space.shape[0]):
@@ -112,7 +112,7 @@ class Snake:
         if not applePositions:
             return 0  # no apples
 
-        appleX, appleY = applePositions[0]
+        appleY, appleX = applePositions[-1]
 
         #distance from head to apple
         distToApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
@@ -122,12 +122,16 @@ class Snake:
 
     def simulateMove(self, snake, direction, space):
         newSnake = Snake(snake.body[-1].posX, snake.body[-1].posY, snake.isPlayer)
+        newSnake.direction = direction
         newSnake.body = [SnakeNode(n.posX, n.posY, n.direction) for n in snake.body]
-        newSnake.changeDirection(direction)
         newSnake.move()
 
-        # check collision with wall
+        # check if it will encounter an apple
         head = newSnake.body[-1]
+        if space[head.posY][head.posX] == 2:
+            return newSnake
+
+        # check collision with wall
         if space[head.posY][head.posX] == 1:
             return None  # wall hit
 
@@ -153,9 +157,10 @@ class Snake:
                     if not newBot:
                         continue
                     evalScore, _ = self.minimax(newBot, playerSnake, space, depth - 1, False)
-                    if evalScore > maxEval:
+                    if evalScore > maxEval or (evalScore == maxEval and direction == self.direction):
                         maxEval = evalScore
                         bestMove = direction
+
             return maxEval, bestMove
         else:
             minEval = float('inf')
@@ -171,7 +176,7 @@ class Snake:
 
     def searchApple(self, space, snakes):
         player = next(s for s in snakes if s.isPlayer)
-        _, direction = self.minimax(self, player, space, 2, True)
+        _, direction = self.minimax(self, player, space, 4, True)
         if direction:
             self.changeDirection(direction)
 
