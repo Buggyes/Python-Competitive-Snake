@@ -133,13 +133,27 @@ class Snake:
                 return score
             return 0
 
-        appleY, appleX = applePositions[-1]
+        # Se houver mais de uma maçã, a IA começa a validar qual caminho é mais vantajoso.
+        # Exemplo: Ir até uma maçã que acabou de aparecer ao invés de ir para a que está mais longe
+        if len(applePositions) > 1:
+            distsOfApples = []
+            for ap in applePositions:
+                appleY, appleX = ap
+                distsOfApples.append((abs((head.posX - appleX)**2 + (head.posY - appleY)**2), appleX, appleY))
+            distsOfApples.sort(key= lambda dists: dists[0])
+            closestApple = distsOfApples[0]
+            distOfApple = abs((head.posX - closestApple[1])**2 + (head.posY - closestApple[2])**2)
+            score = -distOfApple
+            return score
 
-        #Se usa o teorema de pitágoras para calcular a distância da cobra e da maçã
-        #(outros métodos provaram ser problemáticos)
-        distOfApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
-        score = -distOfApple
-        return score
+        else:
+            appleY, appleX = applePositions[-1]
+
+            #Se usa o teorema de pitágoras para calcular a distância da cobra e da maçã
+            #(outros métodos provaram ser problemáticos, explicação no PDF)
+            distOfApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
+            score = -distOfApple
+            return score
 
     def simulateMove(self, snake, otherSnake, direction, space):
         newSnake = Snake(snake.body[-1].posX, snake.body[-1].posY, snake.isPlayer)
@@ -167,14 +181,14 @@ class Snake:
         for node in otherSnake.body:
             if node.posX == head.posX and node.posY == head.posY:
                 bumpChance = rnd.randint(0, 100)
-                # por motivos de balanceamento, a IA tem 10% de chance
+                # por motivos de balanceamento, a IA tem 2% de chance
                 # dela se jogar no corpo do jogador quando ela está próxima
-                if bumpChance >= 90:
+                if bumpChance > 98:
                     return None
 
         return newSnake
 
-    # Método Minimax (explicado em apresentação)
+    # Método Minimax (explicado em apresentação e PDF)
     def minimax(self, botSnake, playerSnake, space, depth, maximizing):
         if depth == 0:
             return self.evaluateBoard(botSnake, playerSnake, space), None
