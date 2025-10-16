@@ -23,15 +23,16 @@ class Snake:
     # e isso causava problemas na jogabilidade.
     def grow(self, board):
         tip = self.body[0]
+        tip.direction = self.direction
         if len(self.body) == 1:
-            if tip.direction == Direction.up:
-                self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
-            if tip.direction == Direction.down:
-                self.body.insert(0, SnakeNode(tip.posX+1, tip.posY, Direction.down))
-            if tip.direction == Direction.left:
-                self.body.insert(0, SnakeNode(tip.posX, tip.posY-1, Direction.left))
-            if tip.direction == Direction.right:
-                self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.right))
+            if self.direction == Direction.up:
+                self.body.insert(0, SnakeNode(tip.posX+1, tip.posY, Direction.up))
+            if self.direction == Direction.down:
+                self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.down))
+            if self.direction == Direction.left:
+                self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.left))
+            if self.direction == Direction.right:
+                self.body.insert(0, SnakeNode(tip.posX, tip.posY-1, Direction.right))
         else:
             tail = self.body[1]
             if tail.posX < tip.posX:
@@ -58,9 +59,16 @@ class Snake:
         if collision == 2:
             return "apple"
         for s in snakes:
-            for i in range(0, len(s.body)-1):
-                if head.posX == s.body[i].posX and head.posY == s.body[i].posY:
-                    return "snake"
+            if s != self:
+                for i in range(0, len(s.body)):
+                    if head.posX == s.body[i].posX and head.posY == s.body[i].posY:
+                        if len(s.body) > len(self.body):
+                            return "snake"
+                        elif len(s.body) == len(self.body):
+                            # ≃2% de chance de perder quando encosta em uma cobra com o tamanho igual
+                            deathChance = rnd.randint(0,100)
+                            if deathChance > 98:
+                                return "snake"
         return "free"
 
     # A cobra se move...

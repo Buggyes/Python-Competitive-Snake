@@ -17,8 +17,8 @@ def placeSnakes(space):
     nSnakes = 2
     while (True):
         finished = False
-        i = rnd.randint(2, size[0]-2)
-        j = rnd.randint(2, size[1]-2)
+        i = rnd.randint(int(size[0]*0.30), size[0]-int(size[0]*0.30))
+        j = rnd.randint(int(size[1]*0.30), size[1]-int(size[1]*0.30))
         if space[i][j] == 0:
             if nSnakes == 2: snakes.append(snake.Snake(i, j, True))
             else: snakes.append(snake.Snake(i, j, False))
