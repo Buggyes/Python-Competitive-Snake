@@ -3,10 +3,14 @@ import random as rnd
 import snake
 
 gameStarted = False
+gameFinished = False
 board = []
 snakes = []
-appleTimer = 4
+appleTimer = 1
 ongoingTimer = appleTimer
+playerScore = 0
+aiScore = 0
+winningScore = 10
 
 def placeSnakes(space):
     size = np.shape(space)
@@ -45,6 +49,8 @@ def createSpace(sizeX, sizeY):
 def moveSnakes(playerDir, space):
     global snakes
     global board
+    global playerScore
+    global aiScore
     deadSnakes = []
     for s in snakes:
         s.acceptInput(playerDir, space, snakes)
@@ -54,6 +60,10 @@ def moveSnakes(playerDir, space):
             deadSnakes.append(s)
         if outcome == "apple":
             board = s.grow(board)
+            if s.isPlayer:
+                playerScore += 1
+            else:
+                aiScore += 1
     for s in deadSnakes:
         snakes.remove(s)
 
@@ -73,3 +83,20 @@ def subtractTimer(timeLen):
     if ongoingTimer <= 0:
         spawnApple()
         ongoingTimer = appleTimer
+
+def checkScore():
+    global playerScore
+    global aiScore
+    global winningScore
+    global gameFinished
+    
+    if playerScore >= winningScore and aiScore >= winningScore:
+        gameFinished = True
+        return 'draw'
+    if playerScore >= winningScore:
+        gameFinished = True
+        return 'player'
+    if aiScore >= winningScore:
+        gameFinished = True
+        return 'ai'
+    return ''
