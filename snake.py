@@ -1,4 +1,5 @@
 from enums import Direction
+from math import sqrt
 
 class SnakeNode:
     def __init__(self, posX: int, posY: int, dir: Direction):
@@ -12,11 +13,12 @@ class Snake:
         self.body = [SnakeNode(posX,posY, Direction.right)]
         self.isPlayer = isPlayer
         if not isPlayer:
-            self.minimaxScore = 0
+            self.pathMaxScore = float('-inf')
+            self.pathMinScore = float('inf')
     
     def grow(self, board):
         tip = self.body[0]
-        if self.body.__len__() == 1:
+        if len(self.body) == 1:
             if tip.direction == Direction.up:
                 self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
             if tip.direction == Direction.down:
@@ -49,13 +51,15 @@ class Snake:
         if collision == 2:
             return "apple"
         for s in snakes:
-            for i in range(0, s.body.__len__()-1):
+            for i in range(0, len(s.body)-1):
                 if head.posX == s.body[i].posX and head.posY == s.body[i].posY:
                     return "snake"
         return "free"
 
     def move(self):
-        prevPositions = [(node.posX, node.posY) for node in self.body]
+        prevPositions = []
+        for n in self.body:
+            prevPositions.append((n.posX, n.posY))
         head = self.body[-1]
         
         if self.direction == Direction.up:
@@ -85,24 +89,35 @@ class Snake:
         if canChange:
             self.direction = dir
 
+    def isOppositeDirection(self, dir: Direction):
+        if dir == Direction.up and self.direction == Direction.down:
+            return True
+        elif dir == Direction.down and self.direction == Direction.up:
+            return True
+        elif dir == Direction.left and self.direction == Direction.right:
+            return True
+        elif dir == Direction.right and self.direction == Direction.left:
+            return True
+        return False
+
     def evaluateBoard(self, botSnake, playerSnake, space):
         head = botSnake.body[-1]
+        
         # Find apple position
-        applePositions = [(x, y) for x in range(space.shape[0]) for y in range(space.shape[1]) if space[x][y] == 2]
+        applePositions = []
+        for i in range(0,space.shape[0]):
+            for j in range(0,space.shape[1]):
+                if space[i][j] == 2:
+                    applePositions.append((i, j))
         if not applePositions:
             return 0  # no apples
 
         appleX, appleY = applePositions[0]
 
-        # manhattan distance from head to apple
-        distToApple = abs(head.posX - appleX) + abs(head.posY - appleY)
+        #distance from head to apple
+        distToApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
 
-        # distance from player snake (penalize if too close)
-        playerHead = playerSnake.body[-1]
-        distToPlayer = abs(head.posX - playerHead.posX) + abs(head.posY - playerHead.posY)
-
-        # score combines distance from apple and safety
-        score = -distToApple + (0.5 * distToPlayer)
+        score = -distToApple
         return score
 
     def simulateMove(self, snake, direction, space):
@@ -117,6 +132,8 @@ class Snake:
             return None  # wall hit
 
         # check self-collision
+        # here, we slice the array so we get everything except the head
+        # so we don't accidentally make the AI freak out every frame
         for node in newSnake.body[:-1]:
             if node.posX == head.posX and node.posY == head.posY:
                 return None
@@ -131,28 +148,30 @@ class Snake:
         if maximizing:
             maxEval = float('-inf')
             for direction in Direction:
-                newBot = self.simulateMove(botSnake, direction, space)
-                if not newBot:
-                    continue
-                evalScore, _ = self.minimax(newBot, playerSnake, space, depth - 1, False)
-                if evalScore > maxEval:
-                    maxEval = evalScore
-                    bestMove = direction
+                if not self.isOppositeDirection(direction):
+                    newBot = self.simulateMove(botSnake, direction, space)
+                    if not newBot:
+                        continue
+                    evalScore, _ = self.minimax(newBot, playerSnake, space, depth - 1, False)
+                    if evalScore > maxEval:
+                        maxEval = evalScore
+                        bestMove = direction
             return maxEval, bestMove
         else:
             minEval = float('inf')
             for direction in Direction:
-                newPlayer = self.simulateMove(playerSnake, direction, space)
-                if not newPlayer:
-                    continue
-                evalScore, _ = self.minimax(botSnake, newPlayer, space, depth - 1, True)
-                if evalScore < minEval:
-                    minEval = evalScore
+                if not self.isOppositeDirection(direction):
+                    newPlayer = self.simulateMove(playerSnake, direction, space)
+                    if not newPlayer:
+                        continue
+                    evalScore, _ = self.minimax(botSnake, newPlayer, space, depth - 1, True)
+                    if evalScore < minEval:
+                        minEval = evalScore
             return minEval, None
 
     def searchApple(self, space, snakes):
         player = next(s for s in snakes if s.isPlayer)
-        self.minimaxScore, direction = self.minimax(self, player, space, 2, True)
+        _, direction = self.minimax(self, player, space, 2, True)
         if direction:
             self.changeDirection(direction)
 
