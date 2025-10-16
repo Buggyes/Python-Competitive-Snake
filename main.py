@@ -5,11 +5,12 @@ from enums import Direction
 import game
 import colorDict
 
+#Define as especificações da janela
 sWidth = 600
 sHeight = 600
 ticksPerSec = 8
 
-#Setup
+#Setup PyGame
 pygame.init()
 pygame.font.init()
 scoreFont = pygame.font.SysFont('Comic Sans MS', int(sHeight/22))
@@ -20,7 +21,7 @@ playerDir = Direction.right
 
 while running:
     start = time.time()
-    for event in pygame.event.get(): # Checks for player input
+    for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.KEYDOWN:
@@ -33,14 +34,15 @@ while running:
             if event.key == pygame.K_RIGHT:
                 playerDir = Direction.right
 
-    space = game.createSpace(40,40) # Draws board
+    space = game.createSpace(40,40)
     if not game.gameFinished:
-        game.moveSnakes(playerDir, space) # Moves all snakes
-    space = colorDict.translateColors(space, game.snakes) # Translates the indexes into colors for display
-    boardSurf = pygame.Surface((space.shape[0], space.shape[1])) # Translates the array into a surface so pygame can draw it
-    pygame.surfarray.blit_array(boardSurf, space) # Converts what's in our array into our display array
-    boardSurf = pygame.transform.scale(boardSurf, (sWidth, sHeight)) # Scales the surface to the window resolution
+        game.moveSnakes(playerDir, space) # Move todas as cobras
+    space = colorDict.translateColors(space, game.snakes) # Traduz os índices que estão no mapa para cores
+    boardSurf = pygame.Surface((space.shape[0], space.shape[1])) # Traduz o array em uma "surface" que pode ser usada para renderizar na janela pelo PyGame
+    pygame.surfarray.blit_array(boardSurf, space) # Converte o que está no array para display
+    boardSurf = pygame.transform.scale(boardSurf, (sWidth, sHeight)) # Escalona a surface para a resolução da janela
 
+    #Cada frame checamos se a partida acabou
     result = game.checkScore()
     if (result == 'draw'):
         scoreSurf = scoreFont.render('Empate!                           ',False,(0, 100, 100), (255, 255, 255))
@@ -52,14 +54,14 @@ while running:
         scoreSurf = scoreFont.render('Jogador:'+game.playerScore.__str__()+' | CPU:'+game.aiScore.__str__(),False,(0, 0, 100), (255, 255, 255))
 
     if not game.gameFinished:
-        screen.blit(boardSurf, (0, 0)) # Draws the surface into the screen
-    screen.blit(scoreSurf, (0, 0))
-    pygame.display.update() # Updates the changes
-    clock.tick(ticksPerSec) # limits FPS
+        screen.blit(boardSurf, (0, 0)) # Renderiza a surface na janelatela
+    screen.blit(scoreSurf, (0, 0)) # Renderiza o placar na janela
+    pygame.display.update() # Atualiza a janela
+    clock.tick(ticksPerSec) # limita o FPS (se não o jogo roda rápido demais)
 
     if not game.gameFinished:
         end = time.time()
         timeLen = start - end
-        game.subtractTimer(timeLen*-1) # subtracts timer and creates apples if it reaches 0
+        game.subtractTimer(timeLen*-1) # subtrai o timer e coloca uma maçã no mapa se ele chega a 0
 
 pygame.quit()

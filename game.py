@@ -32,6 +32,7 @@ def createSpace(sizeX, sizeY):
     global board
     if gameStarted:
         return board
+    
     board = np.ndarray((sizeX, sizeY))
     for i in range(0, sizeX):
         for j in range(0, sizeY):

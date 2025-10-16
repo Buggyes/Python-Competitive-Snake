@@ -2,6 +2,11 @@ from enums import Direction
 from math import sqrt
 import random as rnd
 
+# No python se tem o paradigma de que se você quer que uma variável seja exclusiva de uma instância de uma classe,
+# você declara ela dentro do construtor (__init__()) usando "self". Isso evita situações onde duas classes mexem
+# na mesma variável como se fosse a própria.
+
+# "Nó" da cobra, ou parte do corpo da cobra.
 class SnakeNode:
     def __init__(self, posX: int, posY: int, dir: Direction):
         self.posX = posX
@@ -13,10 +18,9 @@ class Snake:
         self.direction = Direction.right
         self.body = [SnakeNode(posX,posY, Direction.right)]
         self.isPlayer = isPlayer
-        if not isPlayer:
-            self.pathMaxScore = float('-inf')
-            self.pathMinScore = float('inf')
-    
+
+    # Esse método considera a direção da ponta da cobra, pois havia situações onde a cobra crescia dentro dela mesma
+    # e isso causava problemas na jogabilidade.
     def grow(self, board):
         tip = self.body[0]
         if len(self.body) == 1:
@@ -30,7 +34,6 @@ class Snake:
                 self.body.insert(0, SnakeNode(tip.posX, tip.posY+1, Direction.right))
         else:
             tail = self.body[1]
-        
             if tail.posX < tip.posX:
                 self.body.insert(0, SnakeNode(tip.posX-1, tip.posY, Direction.up))
             if tail.posX > tip.posX:
@@ -43,7 +46,10 @@ class Snake:
         head = self.body[-1]
         board[head.posY][head.posX] = 0
         return board
-        
+    
+    # Sempre que a cobra se move, ela checa o resultado do movimento
+    # é implementado individualmente para cada cobra, pois é mais simples
+    # de administrar onde cada cobra está
     def checkOutcome(self, space, snakes):
         head = self.body[-1]
         collision = space[head.posY][head.posX]
@@ -57,6 +63,9 @@ class Snake:
                     return "snake"
         return "free"
 
+    # A cobra se move...
+    # Cada parte do corpo é movida em fila junto com a cobra.
+    # Isso evita problemas onde se perde a cabeça da cobra, ou o corpo dela se solta.
     def move(self):
         prevPositions = []
         for n in self.body:
@@ -75,6 +84,7 @@ class Snake:
         for i in range(len(self.body)-1):
             self.body[i].posX, self.body[i].posY = prevPositions[i+1]
     
+    # Muda a direção da cobra...
     def changeDirection(self, dir: Direction):
         canChange = False
 
@@ -90,6 +100,8 @@ class Snake:
         if canChange:
             self.direction = dir
 
+    # Verifica se a direção é oposta da que a cobra está indo
+    # (USADO APENAS NA BUSCA MINIMAX)
     def isOppositeDirection(self, dir: Direction):
         if dir == Direction.up and self.direction == Direction.down:
             return True
@@ -101,18 +113,19 @@ class Snake:
             return True
         return False
 
+
     def evaluateBoard(self, botSnake, playerSnake, space):
         head = botSnake.body[-1]
 
-        # Find apple position
+        # Procura maçãs
         applePositions = []
         for i in range(0,space.shape[0]):
             for j in range(0,space.shape[1]):
                 if space[i][j] == 2:
                     applePositions.append((i, j))
         if not applePositions:
-            #if there's no apples, and the snake has a size of at least 2,
-            #it will chase down the player and try to corner it
+            # Se não houver maçãs, e a cobra for de tamanho 2 ou maior,
+            # ela começa a perseguir e tentar encurralar o jogador.
             if len(botSnake.body) > 1:
                 playerHead = playerSnake.body[-1]
                 distOfPlayer = abs((head.posX - playerHead.posX)**2 + (head.posY - playerHead.posY)**2)
@@ -122,8 +135,8 @@ class Snake:
 
         appleY, appleX = applePositions[-1]
 
-        
-        #distance from head to apple
+        #Se usa o teorema de pitágoras para calcular a distância da cobra e da maçã
+        #(outros métodos provaram ser problemáticos)
         distOfApple = abs((head.posX - appleX)**2 + (head.posY - appleY)**2)
         score = -distOfApple
         return score
@@ -136,29 +149,32 @@ class Snake:
 
         head = newSnake.body[-1]
         
-        # returns right away if it finds an apple
+        # 2 = maçã
         if space[head.posY][head.posX] == 2:
             return newSnake
         
-        # check collision with wall
+        # 1 = parede
         if space[head.posY][head.posX] == 1:
             return None  # wall hit
 
-        # check self-collision
-        # here, we slice the array so we get everything except the head
-        # so we don't accidentally make the AI freak out every frame
+        # Aqui, nós fatiamos o array (arr[:-1]) para usar todo o corpo da cobra menos a cabeça,
+        # para a IA não enlouquecer toda vez que ela procurar colisões com o corpo
         for node in newSnake.body[:-1]:
             if node.posX == head.posX and node.posY == head.posY:
                 return None
 
+        # Fazemos o menos para a cobra adversária
         for node in otherSnake.body:
             if node.posX == head.posX and node.posY == head.posY:
                 bumpChance = rnd.randint(0, 100)
+                # por motivos de balanceamento, a IA tem 10% de chance
+                # dela se jogar no corpo do jogador quando ela está próxima
                 if bumpChance >= 90:
                     return None
 
         return newSnake
 
+    # Método Minimax (explicado em apresentação)
     def minimax(self, botSnake, playerSnake, space, depth, maximizing):
         if depth == 0:
             return self.evaluateBoard(botSnake, playerSnake, space), None
@@ -195,6 +211,7 @@ class Snake:
             if direction:
                 self.changeDirection(direction)
 
+    # A gente distingue o jogador e a IA para não ficar fazendo buscas Minimax a toa
     def acceptInput(self, dir: Direction, space, snakes):
         if self.isPlayer:
             self.changeDirection(dir)
