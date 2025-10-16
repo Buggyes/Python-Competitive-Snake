@@ -1,5 +1,6 @@
 from enums import Direction
 from math import sqrt
+import random as rnd
 
 class SnakeNode:
     def __init__(self, posX: int, posY: int, dir: Direction):
@@ -120,17 +121,13 @@ class Snake:
         score = -distToApple
         return score
 
-    def simulateMove(self, snake, direction, space):
+    def simulateMove(self, snake, otherSnake, direction, space):
         newSnake = Snake(snake.body[-1].posX, snake.body[-1].posY, snake.isPlayer)
         newSnake.direction = direction
         newSnake.body = [SnakeNode(n.posX, n.posY, n.direction) for n in snake.body]
         newSnake.move()
 
-        # check if it will encounter an apple
         head = newSnake.body[-1]
-        if space[head.posY][head.posX] == 2:
-            return newSnake
-
         # check collision with wall
         if space[head.posY][head.posX] == 1:
             return None  # wall hit
@@ -141,6 +138,12 @@ class Snake:
         for node in newSnake.body[:-1]:
             if node.posX == head.posX and node.posY == head.posY:
                 return None
+
+        for node in otherSnake.body:
+            if node.posX == head.posX and node.posY == head.posY:
+                bumpChance = rnd.randint(0, 100)
+                if bumpChance >= 90:
+                    return None
 
         return newSnake
 
@@ -153,20 +156,19 @@ class Snake:
             maxEval = float('-inf')
             for direction in Direction:
                 if not self.isOppositeDirection(direction):
-                    newBot = self.simulateMove(botSnake, direction, space)
+                    newBot = self.simulateMove(botSnake, playerSnake, direction, space)
                     if not newBot:
                         continue
                     evalScore, _ = self.minimax(newBot, playerSnake, space, depth - 1, False)
                     if evalScore > maxEval or (evalScore == maxEval and direction == self.direction):
                         maxEval = evalScore
                         bestMove = direction
-
             return maxEval, bestMove
         else:
             minEval = float('inf')
             for direction in Direction:
                 if not self.isOppositeDirection(direction):
-                    newPlayer = self.simulateMove(playerSnake, direction, space)
+                    newPlayer = self.simulateMove(playerSnake, botSnake, direction, space)
                     if not newPlayer:
                         continue
                     evalScore, _ = self.minimax(botSnake, newPlayer, space, depth - 1, True)
@@ -176,9 +178,10 @@ class Snake:
 
     def searchApple(self, space, snakes):
         player = next(s for s in snakes if s.isPlayer)
-        _, direction = self.minimax(self, player, space, 4, True)
-        if direction:
-            self.changeDirection(direction)
+        if player:
+            _, direction = self.minimax(self, player, space, 5, True)
+            if direction:
+                self.changeDirection(direction)
 
     def acceptInput(self, dir: Direction, space, snakes):
         if self.isPlayer:

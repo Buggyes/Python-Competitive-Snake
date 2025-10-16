@@ -10,7 +10,7 @@ appleTimer = 1
 ongoingTimer = appleTimer
 playerScore = 0
 aiScore = 0
-winningScore = 10
+winningScore = 30
 
 def placeSnakes(space):
     size = np.shape(space)
@@ -58,6 +58,7 @@ def moveSnakes(playerDir, space):
         outcome = s.checkOutcome(board, snakes)
         if outcome == "wall" or outcome == "snake":
             deadSnakes.append(s)
+            break
         if outcome == "apple":
             board = s.grow(board)
             if s.isPlayer:
@@ -66,6 +67,10 @@ def moveSnakes(playerDir, space):
                 aiScore += 1
     for s in deadSnakes:
         snakes.remove(s)
+        if s.isPlayer:
+            aiScore = winningScore
+        else:
+            playerScore = winningScore
 
 def spawnApple():
     global board

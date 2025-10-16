@@ -43,13 +43,13 @@ while running:
 
     result = game.checkScore()
     if (result == 'draw'):
-        scoreSurf = scoreFont.render('Empate!',False,(0, 100, 100), (255, 255, 255))
+        scoreSurf = scoreFont.render('Empate!                           ',False,(0, 100, 100), (255, 255, 255))
     elif (result == 'player'):
-        scoreSurf = scoreFont.render('Jogador Venceu!',False,(0, 100, 100), (255, 255, 255))
+        scoreSurf = scoreFont.render('Jogador Venceu!                   ',False,(0, 100, 100), (255, 255, 255))
     elif (result == 'ai'):
-        scoreSurf = scoreFont.render('CPU Venceu!',False,(0, 100, 100), (255, 255, 255))
+        scoreSurf = scoreFont.render('CPU Venceu!                       ',False,(0, 100, 100), (255, 255, 255))
     else:
-        scoreSurf = scoreFont.render('Jogador:'+game.playerScore.__str__()+' | IA:'+game.aiScore.__str__(),False,(0, 0, 100), (255, 255, 255))
+        scoreSurf = scoreFont.render('Jogador:'+game.playerScore.__str__()+' | CPU:'+game.aiScore.__str__(),False,(0, 0, 100), (255, 255, 255))
 
     if not game.gameFinished:
         screen.blit(boardSurf, (0, 0)) # Draws the surface into the screen
