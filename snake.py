@@ -180,7 +180,7 @@ class Snake:
         
         # 1 = parede
         if space[head.posY][head.posX] == 1:
-            return None  # wall hit
+            return None
 
         # Aqui, nós fatiamos o array (arr[:-1]) para usar todo o corpo da cobra menos a cabeça,
         # para a IA não enlouquecer toda vez que ela procurar colisões com o corpo
