@@ -10,7 +10,7 @@ appleTimer = 3
 ongoingTimer = appleTimer
 playerScore = 0
 aiScore = 0
-winningScore = 20
+winningScore = 12
 
 def placeSnakes(space):
     size = np.shape(space)
